@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three</title>
+    <script src="https://unpkg.com/three@0.119.0/build/three.js"></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      //创建场景和相机
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      //创建渲染器，设置尺寸为窗口尺寸，并将渲染后的元素添加到body
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      //创建一个Mesh（绿色的3D立方体），并添加到场景中
+      var geometry = new THREE.BoxGeometry();
+      var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      var cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
+
+      //设置照相机的位置
+      camera.position.z = 5;
+
+      //浏览器每次渲染的时候更新立方体的旋转角度
+      var animate = function () {
+        requestAnimationFrame(animate);
+
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+      };
+
+      animate();
+    </script>
+
+    <script>
+      let arr = [
+        { id: 1, name: "部门1", pid: 0 },
+        { id: 2, name: "部门2", pid: 0 },
+        { id: 3, name: "部门3", pid: 1 },
+        { id: 4, name: "部门4", pid: 1 },
+        { id: 7, name: "部门5", pid: 1 },
+        { id: 8, name: "部门5", pid: 1 },
+        { id: 10, name: "部门5", pid: 2 },
+        { id: 15, name: "部门5", pid: 2 },
+        { id: 16, name: "部门5", pid: 2 },
+        { id: 17, name: "部门5", pid: 2 },
+        { id: 18, name: "部门5", pid: 2 },
+      ];
+
+      function treeList(data, result) {
+        let obj = {};
+        if (!Array.isArray(data)) return;
+        data.forEach((item) => {
+          obj[item.id] = {
+            id: item.id,
+            name: item.name,
+            pid: item.pid,
+            children: [],
+          };
+        });
+        data.forEach((item) => {
+          if (obj[item.pid]) {
+            obj[item.pid].children.push(obj[item.id]);
+          }
+          if (item.pid === 0) {
+            result.push(obj[item.id]);
+          }
+        });
+        return result;
+      }
+
+      function treeDataformat(data = [], id, parentId, children, root = 0) {
+        let cloneData = JSON.parse(JSON.stringify(data));
+        return cloneData.filter((father) => {
+          let childArr = cloneData.filter((child) => {
+            return father[id] === child[parentId];
+          });
+          childArr.length > 0 ? (father[children] = childArr) : "";
+          return father[parentId] === root;
+        });
+      }
+      treeList(arr, []);
+      treeDataformat(arr, "id", "pid", "children");
+    </script>
+  </body>
+</html>
